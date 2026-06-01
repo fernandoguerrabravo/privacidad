@@ -1,0 +1,165 @@
+@import "tailwindcss";
+
+:root {
+  /* Paleta corporativa Baker Tilly: fondo oscuro + verde lima */
+  --background: #2b303a; /* fondo real de marca (Midnight) */
+  --foreground: #ffffff; /* texto blanco sobre fondo oscuro */
+  --muted: #aab0ba; /* gris claro para texto secundario */
+  --border: #3f4651;
+  --card: #343b46; /* tarjeta ligeramente elevada */
+  --surface: #343b46;
+  --accent: #d1ec51; /* verde lima Baker Tilly */
+  --accent-dark: #c2de3f;
+  --accent-soft: rgba(209, 236, 81, 0.16);
+  --accent-foreground: #2b303a; /* texto oscuro sobre el lima */
+  --brand-green: #d1ec51; /* verde lima (header, menú, bloques) */
+  --brand-green-dark: #c2de3f;
+  --midnight: #2b303a; /* Midnight Blue de marca */
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-card: var(--card);
+  --color-accent: var(--accent);
+  --color-accent-dark: var(--accent-dark);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-surface: var(--surface);
+  --color-midnight: var(--midnight);
+  --color-brand-green: var(--brand-green);
+  --color-brand-green-dark: var(--brand-green-dark);
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Tarjetas corporativas Baker Tilly: superficie elevada sobre el fondo oscuro,
+   con texto blanco. Sin @layer para priorizar sobre utilidades de Tailwind. */
+.card-dark {
+  background-color: var(--card);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.card-dark .text-muted {
+  color: rgba(255, 255, 255, 0.7);
+}
+.card-dark .text-foreground {
+  color: #ffffff;
+}
+.card-dark .border-border,
+.card-dark .divide-border > * {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Giro del reloj de arena mientras se espera a Claude.
+   Gira 180° en pausas, simulando el volteo del reloj. */
+@keyframes hourglass-flip {
+  0% {
+    transform: rotate(0deg);
+  }
+  40% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(180deg);
+  }
+  90% {
+    transform: rotate(180deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-hourglass {
+  animation: hourglass-flip 1.8s ease-in-out infinite;
+  transform-origin: center;
+}
+
+/* Caída de la arena dentro del reloj */
+@keyframes sand-fall {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.animate-sand {
+  animation: sand-fall 1.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-hourglass {
+    animation: none;
+  }
+  .animate-sand {
+    animation: none;
+  }
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Estilos para impresión / exportación a PDF */
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm;
+  }
+
+  body {
+    background: #ffffff;
+  }
+
+  /* Oculta elementos no deseados en el PDF */
+  .no-print {
+    display: none !important;
+  }
+
+  main {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Evita que las tarjetas se corten entre páginas */
+  .print-avoid-break {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Fuerza la impresión de colores de fondo (medidor, badges) */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Sombras planas para un PDF más limpio */
+  .shadow-sm {
+    box-shadow: none !important;
+  }
+
+  .print-grid-2 {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
