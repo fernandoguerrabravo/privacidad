@@ -55,9 +55,13 @@ export default function Results({ result, onBack, onReset }: ResultsProps) {
             }),
           }),
         });
-        if (!res.ok) throw new Error("No se pudieron generar las conclusiones");
-        const json = (await res.json()) as ConclusionsResponse;
-        if (!cancelled) setData(json);
+        const json = await res.json();
+        if (!res.ok) {
+          throw new Error(
+            json?.error ?? "No se pudieron generar las conclusiones"
+          );
+        }
+        if (!cancelled) setData(json as ConclusionsResponse);
       } catch (e) {
         if (!cancelled)
           setError(
