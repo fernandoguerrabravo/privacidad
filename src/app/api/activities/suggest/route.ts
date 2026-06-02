@@ -100,24 +100,24 @@ Puntaje global: ${body.overallAverage.toFixed(1)}/5 (nivel: ${body.levelLabel}).
 Dimensiones:
 ${dims}
 
-Genera entre 2 y 4 actividades por dimensión (más actividades y mayor prioridad cuando el puntaje sea más bajo). Cada actividad debe ser accionable, específica y realista para una empresa en Chile.
+Genera exactamente 2 actividades por dimensión (asigna prioridad "alta" cuando el puntaje sea menor a 3, "media" entre 3 y 4, "baja" sobre 4). Cada actividad debe ser accionable y específica para una empresa en Chile.
 
 Responde EXCLUSIVAMENTE en JSON válido, sin markdown ni texto adicional, con esta estructura:
 {
   "activities": [
     {
       "dimension_id": "string (usa el id exacto entregado)",
-      "title": "string (acción breve, máx 90 caracteres)",
-      "description": "string (1-2 frases con el cómo)",
+      "title": "string (acción breve, máx 80 caracteres)",
+      "description": "string (UNA frase concisa con el cómo, máx 160 caracteres)",
       "priority": "alta | media | baja"
     }
   ]
 }
-Escribe en español de Chile, tono profesional.`;
+Sé breve para responder rápido. Escribe en español de Chile, tono profesional.`;
 
   const res = await anthropicFetchWithRetry(apiKey, {
     model: MODEL,
-    max_tokens: 3000,
+    max_tokens: 2000,
     messages: [{ role: "user", content: prompt }],
   });
 
@@ -158,8 +158,8 @@ Escribe en español de Chile, tono profesional.`;
 async function anthropicFetchWithRetry(
   apiKey: string,
   payload: object,
-  attempts = 3,
-  timeoutMs = 40000
+  attempts = 2,
+  timeoutMs = 60000
 ): Promise<Response> {
   let lastError: unknown;
   const body = JSON.stringify(payload);
