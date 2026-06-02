@@ -28,6 +28,7 @@ export default function Results({ result, onBack, onReset }: ResultsProps) {
   const [data, setData] = useState<ConclusionsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [assessmentId, setAssessmentId] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -126,12 +127,40 @@ export default function Results({ result, onBack, onReset }: ResultsProps) {
           total: d.total,
         })),
       }),
-    }).catch(() => {
-      // No bloquea la vista si el guardado falla.
-    });
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (d?.assessment?.id) setAssessmentId(d.assessment.id);
+      })
+      .catch(() => {
+        // No bloquea la vista si el guardado falla.
+      });
     // Solo al montar: el resultado es definitivo en esta vista.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Cuando ya existen la evaluación guardada y las conclusiones de Claude,
+  // las adjunta a la evaluación en la base de datos (una sola vez).
+  const conclusionsSavedRef = useRef(false);
+  useEffect(() => {
+    if (conclusionsSavedRef.current) return;
+    if (!assessmentId || !data) return;
+    conclusionsSavedRef.current = true;
+
+    fetch(`/api/assessments/${assessmentId}`, {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        conclusions: {
+          overall: data.overall,
+          dimensions: data.dimensions,
+          source: data.source,
+        },
+      }),
+    }).catch(() => {
+      // No bloquea la vista si el guardado de conclusiones falla.
+    });
+  }, [assessmentId, data]);
 
   const radarData = result.dimensionScores.map((d) => ({
     label: dimensions.find((x) => x.id === d.id)?.shortName ?? d.name,

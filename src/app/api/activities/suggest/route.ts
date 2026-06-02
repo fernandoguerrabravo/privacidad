@@ -115,27 +115,11 @@ Responde EXCLUSIVAMENTE en JSON válido, sin markdown ni texto adicional, con es
 }
 Escribe en español de Chile, tono profesional.`;
 
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 40000);
-  let res: Response;
-  try {
-    res = await fetch(ANTHROPIC_URL, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        max_tokens: 3000,
-        messages: [{ role: "user", content: prompt }],
-      }),
-      signal: controller.signal,
-    });
-  } finally {
-    clearTimeout(timer);
-  }
+  const res = await anthropicFetchWithRetry(apiKey, {
+    model: MODEL,
+    max_tokens: 3000,
+    messages: [{ role: "user", content: prompt }],
+  });
 
   if (!res.ok) {
     const text = await res.text();
@@ -167,6 +151,59 @@ Escribe en español de Chile, tono profesional.`;
         ? (a.priority as SuggestedActivity["priority"])
         : "media",
     }));
+}
+
+// Llama a la API de Anthropic con timeout y reintentos ante fallos de red
+// o errores transitorios (429/5xx), para mayor robustez en producción.
+async function anthropicFetchWithRetry(
+  apiKey: string,
+  payload: object,
+  attempts = 3,
+  timeoutMs = 40000
+): Promise<Response> {
+  let lastError: unknown;
+  const body = JSON.stringify(payload);
+
+  for (let i = 0; i < attempts; i++) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      console.log(`${LOG}   intento ${i + 1}/${attempts} → POST Anthropic`);
+      const res = await fetch(ANTHROPIC_URL, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-api-key": apiKey,
+          "anthropic-version": "2023-06-01",
+        },
+        body,
+        signal: controller.signal,
+      });
+      clearTimeout(timer);
+
+      if ((res.status === 429 || res.status >= 500) && i < attempts - 1) {
+        console.warn(`${LOG}   estado ${res.status}; reintentando…`);
+        await new Promise((r) => setTimeout(r, 1000 * (i + 1)));
+        continue;
+      }
+      return res;
+    } catch (err) {
+      clearTimeout(timer);
+      lastError = err;
+      const msg = err instanceof Error ? err.message : "error";
+      console.warn(`${LOG}   intento ${i + 1} falló: ${msg}`);
+      if (i < attempts - 1) {
+        await new Promise((r) => setTimeout(r, 1000 * (i + 1)));
+        continue;
+      }
+    }
+  }
+
+  throw new Error(
+    lastError instanceof Error
+      ? `Fallo de red hacia Anthropic: ${lastError.message}`
+      : "Fallo de red hacia Anthropic"
+  );
 }
 
 function extractJson(

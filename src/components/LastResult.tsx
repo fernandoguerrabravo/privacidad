@@ -23,6 +23,11 @@ interface Assessment {
   totalAnswered: number;
   totalQuestions: number;
   dimensions: AssessmentDimension[];
+  conclusions: {
+    overall: string;
+    dimensions: { id: string; conclusion: string }[];
+    source: "claude" | "fallback";
+  } | null;
   createdAt: string;
 }
 
@@ -203,6 +208,49 @@ export default function LastResult() {
           ))}
         </div>
       </section>
+
+      {/* Conclusiones guardadas (generadas por Claude) */}
+      {latest.conclusions && (
+        <section className="mb-8">
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="text-base font-semibold text-white">
+              Conclusiones
+            </h3>
+            <span className="rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-medium text-muted">
+              {latest.conclusions.source === "claude"
+                ? "Generado con Claude"
+                : "Análisis automático"}
+            </span>
+          </div>
+
+          {latest.conclusions.overall && (
+            <div className="card-dark mb-4 rounded-2xl p-6 shadow-sm">
+              <h4 className="mb-2 text-sm font-semibold text-white">
+                Conclusión general
+              </h4>
+              <p className="text-sm leading-relaxed text-white/90">
+                {latest.conclusions.overall}
+              </p>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {latest.conclusions.dimensions.map((c) => {
+              const dim = latest.dimensions.find((d) => d.id === c.id);
+              return (
+                <div key={c.id} className="card-dark rounded-2xl p-5 shadow-sm">
+                  <h4 className="mb-2 text-sm font-semibold text-white">
+                    {shortName(c.id, dim?.name ?? c.id)}
+                  </h4>
+                  <p className="text-sm leading-relaxed text-muted">
+                    {c.conclusion}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {/* Historial */}
       {history.length > 1 && (

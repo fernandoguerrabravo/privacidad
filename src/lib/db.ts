@@ -49,9 +49,20 @@ export function getDb(): Database.Database {
       total_questions INTEGER NOT NULL,
       dimensions_json TEXT NOT NULL,
       answers_json TEXT NOT NULL DEFAULT '{}',
+      conclusions_json TEXT NOT NULL DEFAULT '',
       created_at TEXT NOT NULL
     );
   `);
+
+  // Migración: agrega conclusions_json si la tabla ya existía sin la columna.
+  const cols = db
+    .prepare("PRAGMA table_info(assessments)")
+    .all() as { name: string }[];
+  if (!cols.some((c) => c.name === "conclusions_json")) {
+    db.exec(
+      "ALTER TABLE assessments ADD COLUMN conclusions_json TEXT NOT NULL DEFAULT ''"
+    );
+  }
 
   return db;
 }
@@ -88,6 +99,13 @@ export interface AssessmentDimension {
   total: number;
 }
 
+// Conclusiones generadas por Claude (o respaldo) para una evaluación.
+export interface AssessmentConclusions {
+  overall: string;
+  dimensions: { id: string; conclusion: string }[];
+  source: "claude" | "fallback";
+}
+
 // Fila de la tabla assessments tal como se guarda en SQLite.
 export interface AssessmentRow {
   id: string;
@@ -97,6 +115,7 @@ export interface AssessmentRow {
   total_questions: number;
   dimensions_json: string;
   answers_json: string;
+  conclusions_json: string;
   created_at: string;
 }
 
@@ -109,5 +128,6 @@ export interface Assessment {
   totalQuestions: number;
   dimensions: AssessmentDimension[];
   answers: Record<string, number>;
+  conclusions: AssessmentConclusions | null;
   createdAt: string;
 }

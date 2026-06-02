@@ -4,6 +4,7 @@ import {
   Assessment,
   AssessmentRow,
   AssessmentDimension,
+  AssessmentConclusions,
 } from "./db";
 
 export interface NewAssessment {
@@ -13,6 +14,7 @@ export interface NewAssessment {
   totalQuestions: number;
   dimensions: AssessmentDimension[];
   answers?: Record<string, number>;
+  conclusions?: AssessmentConclusions | null;
 }
 
 function rowToAssessment(row: AssessmentRow): Assessment {
@@ -24,6 +26,9 @@ function rowToAssessment(row: AssessmentRow): Assessment {
     totalQuestions: row.total_questions,
     dimensions: safeParse<AssessmentDimension[]>(row.dimensions_json, []),
     answers: safeParse<Record<string, number>>(row.answers_json, {}),
+    conclusions: row.conclusions_json
+      ? safeParse<AssessmentConclusions | null>(row.conclusions_json, null)
+      : null,
     createdAt: row.created_at,
   };
 }
@@ -46,17 +51,32 @@ export function createAssessment(input: NewAssessment): Assessment {
     total_questions: input.totalQuestions,
     dimensions_json: JSON.stringify(input.dimensions ?? []),
     answers_json: JSON.stringify(input.answers ?? {}),
+    conclusions_json: input.conclusions
+      ? JSON.stringify(input.conclusions)
+      : "",
     created_at: new Date().toISOString(),
   };
 
   db.prepare(
     `INSERT INTO assessments
-      (id, overall_average, level_label, total_answered, total_questions, dimensions_json, answers_json, created_at)
+      (id, overall_average, level_label, total_answered, total_questions, dimensions_json, answers_json, conclusions_json, created_at)
      VALUES
-      (@id, @overall_average, @level_label, @total_answered, @total_questions, @dimensions_json, @answers_json, @created_at)`
+      (@id, @overall_average, @level_label, @total_answered, @total_questions, @dimensions_json, @answers_json, @conclusions_json, @created_at)`
   ).run(row);
 
   return rowToAssessment(row);
+}
+
+// Guarda/actualiza las conclusiones de una evaluación ya existente.
+export function setAssessmentConclusions(
+  id: string,
+  conclusions: AssessmentConclusions
+): boolean {
+  const db = getDb();
+  const res = db
+    .prepare("UPDATE assessments SET conclusions_json = ? WHERE id = ?")
+    .run(JSON.stringify(conclusions), id);
+  return res.changes > 0;
 }
 
 export function getLatestAssessment(): Assessment | null {
@@ -64,6 +84,14 @@ export function getLatestAssessment(): Assessment | null {
   const row = db
     .prepare("SELECT * FROM assessments ORDER BY created_at DESC LIMIT 1")
     .get() as AssessmentRow | undefined;
+  return row ? rowToAssessment(row) : null;
+}
+
+export function getAssessment(id: string): Assessment | null {
+  const db = getDb();
+  const row = db
+    .prepare("SELECT * FROM assessments WHERE id = ?")
+    .get(id) as AssessmentRow | undefined;
   return row ? rowToAssessment(row) : null;
 }
 

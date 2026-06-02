@@ -189,8 +189,8 @@ Usa los mismos id de dimensión entregados. Escribe en español de Chile, tono p
 async function fetchWithRetry({
   apiKey,
   body,
-  attempts = 2,
-  timeoutMs = 30000,
+  attempts = 3,
+  timeoutMs = 40000,
 }: {
   apiKey: string;
   body: string;
