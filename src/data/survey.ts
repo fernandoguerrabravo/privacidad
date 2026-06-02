@@ -1,8 +1,10 @@
 // Cuestionario de autoevaluación de cumplimiento de la
 // Ley N° 21.719 de Protección de Datos Personales de Chile.
 //
-// Las preguntas se agrupan en dimensiones. Cada pregunta se responde
-// en una escala de 1 (no cumple) a 5 (cumple completamente).
+// Las dimensiones combinan los principios legales de la ley con las áreas
+// operativas del "Checklist de Cumplimiento" (basado en el material de Prey
+// Inc.). Cada afirmación se responde en una escala de 1 (no cumple) a
+// 5 (cumple completamente).
 
 export interface Question {
   id: string;
@@ -28,52 +30,81 @@ export const SCALE_LABELS: Record<number, string> = {
 
 export const dimensions: Dimension[] = [
   {
-    id: "principios",
-    name: "Principios y licitud",
-    shortName: "Principios",
+    id: "diagnostico",
+    name: "Diagnóstico inicial",
+    shortName: "Diagnóstico",
     description:
-      "Aplicación de los principios de licitud, finalidad, proporcionalidad, calidad y transparencia en el tratamiento de datos.",
+      "Conocimiento de los datos personales que trata la organización y registro de las actividades de tratamiento.",
     questions: [
       {
-        id: "principios-1",
-        text: "Los datos personales se tratan con una finalidad específica, explícita y lícita previamente definida.",
+        id: "diagnostico-1",
+        text: "Identificamos qué datos personales recopilamos, dónde y cómo los almacenamos.",
       },
       {
-        id: "principios-2",
-        text: "Se recolectan únicamente los datos estrictamente necesarios para la finalidad (minimización de datos).",
+        id: "diagnostico-2",
+        text: "Contamos con un inventario de datos personales actualizado.",
       },
       {
-        id: "principios-3",
-        text: "Existen mecanismos para mantener los datos exactos, completos y actualizados.",
+        id: "diagnostico-3",
+        text: "Hemos realizado un análisis de brechas de cumplimiento (gap analysis).",
       },
       {
-        id: "principios-4",
-        text: "Se informa a los titulares de forma clara y transparente sobre el tratamiento de sus datos.",
+        id: "diagnostico-4",
+        text: "Mantenemos un Registro de Actividades de Tratamiento (RAT).",
       },
     ],
   },
   {
-    id: "consentimiento",
-    name: "Bases de licitud y consentimiento",
-    shortName: "Consentimiento",
+    id: "principios",
+    name: "Principios y licitud",
+    shortName: "Principios",
     description:
-      "Existencia de una base legal válida para cada tratamiento y gestión adecuada del consentimiento.",
+      "Aplicación de los principios de licitud, finalidad, minimización, calidad y transparencia, con una base legal válida para cada tratamiento.",
     questions: [
       {
-        id: "consentimiento-1",
-        text: "Cada tratamiento de datos cuenta con una base de licitud identificada (consentimiento, contrato, ley, etc.).",
+        id: "principios-1",
+        text: "Los datos se tratan con una finalidad específica, explícita y lícita previamente definida.",
       },
       {
-        id: "consentimiento-2",
-        text: "El consentimiento se obtiene de forma libre, informada, específica e inequívoca.",
+        id: "principios-2",
+        text: "Recolectamos únicamente los datos estrictamente necesarios para la finalidad (minimización).",
       },
       {
-        id: "consentimiento-3",
-        text: "Los titulares pueden revocar su consentimiento de forma sencilla en cualquier momento.",
+        id: "principios-3",
+        text: "Cada tratamiento cuenta con una base de licitud identificada (consentimiento, contrato, ley, etc.).",
       },
       {
-        id: "consentimiento-4",
-        text: "Se aplica protección reforzada al tratamiento de datos sensibles y de niños, niñas y adolescentes.",
+        id: "principios-4",
+        text: "El consentimiento se obtiene de forma libre, informada, específica e inequívoca, y es revocable.",
+      },
+      {
+        id: "principios-5",
+        text: "Aplicamos protección reforzada a los datos sensibles y de niños, niñas y adolescentes.",
+      },
+    ],
+  },
+  {
+    id: "politicas",
+    name: "Políticas y gobernanza",
+    shortName: "Políticas",
+    description:
+      "Políticas internas, responsabilidades definidas y capacitación que sustentan el cumplimiento (responsabilidad proactiva).",
+    questions: [
+      {
+        id: "politicas-1",
+        text: "Contamos con una Política de Privacidad clara, accesible y comunicada a los titulares.",
+      },
+      {
+        id: "politicas-2",
+        text: "Hemos designado un Delegado de Protección de Datos (DPO) o responsable interno.",
+      },
+      {
+        id: "politicas-3",
+        text: "El personal recibe capacitación periódica sobre protección de datos personales.",
+      },
+      {
+        id: "politicas-4",
+        text: "Existen políticas y procedimientos internos documentados para el tratamiento de datos.",
       },
     ],
   },
@@ -82,98 +113,123 @@ export const dimensions: Dimension[] = [
     name: "Derechos de los titulares",
     shortName: "Derechos",
     description:
-      "Capacidad de la organización para atender los derechos de acceso, rectificación, cancelación, oposición y portabilidad.",
+      "Capacidad de atender los derechos de acceso, rectificación, cancelación, oposición y portabilidad (ARCOP).",
     questions: [
       {
         id: "derechos-1",
-        text: "Existe un canal formal para que los titulares ejerzan sus derechos (ARCOP).",
+        text: "Tenemos protocolos definidos para gestionar los derechos ARCO (acceso, rectificación, cancelación y oposición).",
       },
       {
         id: "derechos-2",
-        text: "Las solicitudes de derechos se responden dentro de los plazos legales establecidos.",
+        text: "Existe un canal formal para que los titulares ejerzan sus derechos.",
       },
       {
         id: "derechos-3",
-        text: "Se garantiza el derecho a la portabilidad de los datos en formato estructurado.",
+        text: "Respondemos las solicitudes de derechos dentro de los plazos legales establecidos.",
       },
       {
         id: "derechos-4",
-        text: "Se gestiona el derecho de oposición frente a decisiones automatizadas y elaboración de perfiles.",
+        text: "Garantizamos la portabilidad y gestionamos la oposición a decisiones automatizadas y perfilamiento.",
       },
     ],
   },
   {
     id: "seguridad",
-    name: "Seguridad e incidentes",
+    name: "Medidas de seguridad",
     shortName: "Seguridad",
     description:
-      "Medidas técnicas y organizativas para proteger los datos y la gestión de violaciones de seguridad.",
+      "Medidas técnicas y organizativas para proteger los datos: cifrado, control de acceso, respaldo, dispositivos y ciberseguridad.",
     questions: [
       {
         id: "seguridad-1",
-        text: "Existen medidas técnicas y organizativas apropiadas para proteger los datos personales.",
+        text: "Implementamos cifrado y anonimización para la información sensible.",
       },
       {
         id: "seguridad-2",
-        text: "Se aplican controles de acceso, cifrado y registro de actividad sobre los datos.",
+        text: "Contamos con controles de acceso y permisos sobre los datos.",
       },
       {
         id: "seguridad-3",
-        text: "Existe un procedimiento para detectar, gestionar y documentar las brechas de seguridad.",
+        text: "Realizamos copias de seguridad periódicas y tenemos planes de recuperación.",
       },
       {
         id: "seguridad-4",
-        text: "Se notifican las brechas a la Agencia de Protección de Datos y a los titulares cuando corresponde.",
+        text: "Monitoreamos y protegemos los dispositivos corporativos para evitar pérdida o robo de datos (incl. borrado remoto).",
+      },
+      {
+        id: "seguridad-5",
+        text: "Hemos adoptado medidas de ciberseguridad para prevenir filtraciones y ataques.",
       },
     ],
   },
   {
-    id: "gobernanza",
-    name: "Gobernanza y responsabilidad",
-    shortName: "Gobernanza",
+    id: "pia",
+    name: "Evaluación de impacto (EIPD)",
+    shortName: "Eval. impacto",
     description:
-      "Responsabilidad proactiva, roles definidos y documentación que demuestra el cumplimiento.",
+      "Identificación y gestión de riesgos mediante Evaluaciones de Impacto en la Protección de Datos en tratamientos de alto riesgo.",
     questions: [
       {
-        id: "gobernanza-1",
-        text: "Existe un responsable o encargado de protección de datos (DPO) designado.",
+        id: "pia-1",
+        text: "Sabemos en qué casos debemos realizar una Evaluación de Impacto en la Protección de Datos (EIPD/PIA).",
       },
       {
-        id: "gobernanza-2",
-        text: "Se mantiene un registro de las actividades de tratamiento de datos personales.",
+        id: "pia-2",
+        text: "Aplicamos una metodología estructurada para evaluar los riesgos del tratamiento de datos.",
       },
       {
-        id: "gobernanza-3",
-        text: "Se realizan evaluaciones de impacto (EIPD) en tratamientos de alto riesgo.",
+        id: "pia-3",
+        text: "Implementamos medidas correctivas cuando detectamos riesgos en el tratamiento.",
+      },
+    ],
+  },
+  {
+    id: "incidentes",
+    name: "Respuesta a incidentes y brechas",
+    shortName: "Incidentes",
+    description:
+      "Protocolos para detectar, gestionar, notificar y comunicar las violaciones de seguridad de los datos personales.",
+    questions: [
+      {
+        id: "incidentes-1",
+        text: "Contamos con un protocolo de respuesta ante incidentes de seguridad.",
       },
       {
-        id: "gobernanza-4",
-        text: "El personal recibe capacitación periódica en protección de datos personales.",
+        id: "incidentes-2",
+        text: "Definimos cómo y cuándo notificar a la Agencia de Protección de Datos en caso de brecha.",
+      },
+      {
+        id: "incidentes-3",
+        text: "Tenemos un plan de comunicación para informar a los titulares afectados ante un incidente.",
+      },
+      {
+        id: "incidentes-4",
+        text: "Realizamos simulacros o pruebas de respuesta ante incidentes.",
       },
     ],
   },
   {
     id: "transferencias",
-    name: "Encargados y transferencias",
+    name: "Transferencias y terceros",
     shortName: "Transferencias",
     description:
-      "Gestión de proveedores que tratan datos y de las transferencias internacionales de información.",
+      "Gestión de proveedores que tratan datos en nuestro nombre y de las transferencias internacionales de información.",
     questions: [
       {
         id: "transferencias-1",
-        text: "Existen contratos de encargo de tratamiento con todos los proveedores que acceden a datos.",
+        text: "Hemos identificado qué proveedores manejan datos personales en nuestro nombre.",
       },
       {
         id: "transferencias-2",
-        text: "Se verifica que los encargados ofrezcan garantías suficientes de cumplimiento.",
+        text: "Contamos con contratos de encargo de tratamiento (DPA) con nuestros proveedores.",
       },
       {
         id: "transferencias-3",
-        text: "Las transferencias internacionales cuentan con garantías adecuadas de protección.",
+        text: "Verificamos que las transferencias internacionales de datos cumplan con la ley.",
       },
       {
         id: "transferencias-4",
-        text: "Se documentan y controlan los flujos de datos hacia terceros países u organizaciones.",
+        text: "Documentamos y controlamos los flujos de datos hacia terceros u otros países.",
       },
     ],
   },

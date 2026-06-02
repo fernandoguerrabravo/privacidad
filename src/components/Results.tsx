@@ -78,6 +78,31 @@ export default function Results({ result, onBack, onReset }: ResultsProps) {
     };
   }, [result]);
 
+  // Guarda el último resultado en el navegador para que el Plan de acción
+  // pueda generar sugerencias con los puntajes reales de la encuesta.
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        "ultimoResultadoEncuesta",
+        JSON.stringify({
+          overallAverage: result.overallAverage,
+          levelLabel: result.level.label,
+          dimensions: result.dimensionScores.map((d) => {
+            const meta = dimensions.find((x) => x.id === d.id);
+            return {
+              id: d.id,
+              name: d.name,
+              description: meta?.description ?? "",
+              average: d.average,
+            };
+          }),
+        })
+      );
+    } catch {
+      // Ignorar si localStorage no está disponible.
+    }
+  }, [result]);
+
   const radarData = result.dimensionScores.map((d) => ({
     label: dimensions.find((x) => x.id === d.id)?.shortName ?? d.name,
     value: d.average,
