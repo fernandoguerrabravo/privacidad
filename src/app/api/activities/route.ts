@@ -4,6 +4,7 @@ import {
   listActivities,
   createActivity,
   createManyActivities,
+  deleteAllActivities,
   NewActivity,
 } from "@/lib/activities";
 
@@ -56,4 +57,13 @@ export async function POST(req: NextRequest) {
     );
   }
   return NextResponse.json({ activity: createActivity(single) }, { status: 201 });
+}
+
+// DELETE /api/activities -> elimina TODAS las actividades
+export async function DELETE(req: NextRequest) {
+  if (!(await requireSession(req))) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+  const deleted = deleteAllActivities();
+  return NextResponse.json({ ok: true, deleted });
 }

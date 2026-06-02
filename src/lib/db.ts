@@ -37,6 +37,22 @@ export function getDb(): Database.Database {
     );
   `);
 
+  // Tabla de evaluaciones (resultados de la encuesta).
+  // overall_average: puntaje global. level_label: nivel de cumplimiento.
+  // dimensions_json y answers_json guardan el detalle serializado.
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS assessments (
+      id TEXT PRIMARY KEY,
+      overall_average REAL NOT NULL,
+      level_label TEXT NOT NULL,
+      total_answered INTEGER NOT NULL,
+      total_questions INTEGER NOT NULL,
+      dimensions_json TEXT NOT NULL,
+      answers_json TEXT NOT NULL DEFAULT '{}',
+      created_at TEXT NOT NULL
+    );
+  `);
+
   return db;
 }
 
@@ -61,4 +77,37 @@ export interface Activity {
   source: "manual" | "claude";
   created_at: string;
   updated_at: string;
+}
+
+// Detalle de una dimensión dentro de una evaluación guardada.
+export interface AssessmentDimension {
+  id: string;
+  name: string;
+  average: number;
+  answered: number;
+  total: number;
+}
+
+// Fila de la tabla assessments tal como se guarda en SQLite.
+export interface AssessmentRow {
+  id: string;
+  overall_average: number;
+  level_label: string;
+  total_answered: number;
+  total_questions: number;
+  dimensions_json: string;
+  answers_json: string;
+  created_at: string;
+}
+
+// Evaluación ya deserializada para usar en la app.
+export interface Assessment {
+  id: string;
+  overallAverage: number;
+  levelLabel: string;
+  totalAnswered: number;
+  totalQuestions: number;
+  dimensions: AssessmentDimension[];
+  answers: Record<string, number>;
+  createdAt: string;
 }

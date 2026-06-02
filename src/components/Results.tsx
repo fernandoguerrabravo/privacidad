@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SurveyResult } from "@/lib/scoring";
 import { dimensions } from "@/data/survey";
 import RadarChart from "./RadarChart";
@@ -102,6 +102,36 @@ export default function Results({ result, onBack, onReset }: ResultsProps) {
       // Ignorar si localStorage no está disponible.
     }
   }, [result]);
+
+  // Guarda la evaluación en la base de datos (SQLite) una sola vez al montar
+  // la vista de resultados, para que quede registrada y consultable luego.
+  const savedRef = useRef(false);
+  useEffect(() => {
+    if (savedRef.current) return;
+    savedRef.current = true;
+
+    fetch("/api/assessments", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        overallAverage: result.overallAverage,
+        levelLabel: result.level.label,
+        totalAnswered: result.totalAnswered,
+        totalQuestions: result.totalQuestions,
+        dimensions: result.dimensionScores.map((d) => ({
+          id: d.id,
+          name: d.name,
+          average: d.average,
+          answered: d.answered,
+          total: d.total,
+        })),
+      }),
+    }).catch(() => {
+      // No bloquea la vista si el guardado falla.
+    });
+    // Solo al montar: el resultado es definitivo en esta vista.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const radarData = result.dimensionScores.map((d) => ({
     label: dimensions.find((x) => x.id === d.id)?.shortName ?? d.name,

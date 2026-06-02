@@ -84,26 +84,47 @@ export default function PlanBoard() {
     return Math.round((done / activities.length) * 100);
   }, [activities]);
 
-  // Lee el último resultado de encuesta guardado en el navegador.
-  const readSurveyScores = () => {
+  // Lee el último resultado de encuesta: primero desde la base de datos
+  // (persistente), con respaldo en localStorage del navegador.
+  const fetchSurveyScores = async () => {
+    try {
+      const res = await fetch("/api/assessments");
+      if (res.ok) {
+        const data = await res.json();
+        const a = data.latest;
+        if (a) {
+          return {
+            overallAverage: a.overallAverage,
+            levelLabel: a.levelLabel,
+            dimensions: a.dimensions.map(
+              (d: { id: string; name: string; average: number }) => ({
+                id: d.id,
+                name: d.name,
+                description:
+                  dimensions.find((x) => x.id === d.id)?.description ?? "",
+                average: d.average,
+              })
+            ),
+          };
+        }
+      }
+    } catch {
+      // continúa con el respaldo local
+    }
     try {
       const raw = localStorage.getItem("ultimoResultadoEncuesta");
-      if (!raw) return null;
-      return JSON.parse(raw) as {
-        overallAverage: number;
-        levelLabel: string;
-        dimensions: { id: string; name: string; description: string; average: number }[];
-      };
+      if (raw) return JSON.parse(raw);
     } catch {
-      return null;
+      // sin respaldo disponible
     }
+    return null;
   };
 
   const handleSuggest = async () => {
     setSuggesting(true);
     setError(null);
     try {
-      const saved = readSurveyScores();
+      const saved = await fetchSurveyScores();
       const payload = saved ?? {
         overallAverage: 3,
         levelLabel: "Intermedio",
@@ -162,6 +183,20 @@ export default function PlanBoard() {
   const removeActivity = async (id: string) => {
     setActivities((prev) => prev.filter((a) => a.id !== id));
     await fetch(`/api/activities/${id}`, { method: "DELETE" });
+  };
+
+  const removeAllActivities = async () => {
+    const confirmed = window.confirm(
+      `¿Eliminar las ${activities.length} actividades del plan? Esta acción no se puede deshacer.`
+    );
+    if (!confirmed) return;
+    const prev = activities;
+    setActivities([]); // optimista
+    const res = await fetch("/api/activities", { method: "DELETE" });
+    if (!res.ok) {
+      setActivities(prev); // revertir si falla
+      setError("No se pudieron eliminar las actividades");
+    }
   };
 
   const addManual = async (input: {
@@ -225,6 +260,15 @@ export default function PlanBoard() {
           >
             {suggesting ? "Generando…" : "Sugerir con IA"}
           </button>
+          {activities.length > 0 && (
+            <button
+              type="button"
+              onClick={removeAllActivities}
+              className="rounded-lg border border-red-500/40 bg-transparent px-4 py-2 text-sm font-medium text-red-300 transition-colors hover:bg-red-500/15"
+            >
+              Borrar todas
+            </button>
+          )}
         </div>
       </header>
 

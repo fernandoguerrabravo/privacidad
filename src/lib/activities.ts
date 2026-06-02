@@ -120,3 +120,9 @@ export function deleteActivity(id: string): boolean {
   const res = db.prepare("DELETE FROM activities WHERE id = ?").run(id);
   return res.changes > 0;
 }
+
+export function deleteAllActivities(): number {
+  const db = getDb();
+  const res = db.prepare("DELETE FROM activities").run();
+  return res.changes;
+}
