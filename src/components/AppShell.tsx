@@ -60,6 +60,15 @@ const navItems: NavItem[] = [
       </svg>
     ),
   },
+  {
+    href: "/dashboard/implementacion",
+    label: "Implementación",
+    icon: (
+      <svg viewBox="0 0 24 24" className="h-5 w-5" {...iconProps}>
+        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+      </svg>
+    ),
+  },
 ];
 
 export default function AppShell({
@@ -195,5 +204,6 @@ function pageTitle(pathname: string): string {
   if (pathname.startsWith("/dashboard/encuesta")) return "Autoevaluación";
   if (pathname.startsWith("/dashboard/resultado")) return "Último resultado";
   if (pathname.startsWith("/dashboard/plan")) return "Plan de acción";
+  if (pathname.startsWith("/dashboard/implementacion")) return "Implementación";
   return "Panel de control";
 }

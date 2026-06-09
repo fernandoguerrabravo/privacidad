@@ -64,6 +64,16 @@ export function getDb(): Database.Database {
     );
   }
 
+  // Tabla de progreso del proceso de implementación (checklist por fase).
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS implementation_progress (
+      item_id TEXT PRIMARY KEY,
+      completed INTEGER NOT NULL DEFAULT 0,
+      completed_at TEXT NOT NULL DEFAULT '',
+      notes TEXT NOT NULL DEFAULT ''
+    );
+  `);
+
   return db;
 }
 
